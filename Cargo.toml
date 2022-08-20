@@ -1,11 +1,7 @@
 [package]
 name = "rust-api"
 version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dotenv = "0.15.0"
 diesel = { version = "1.2.2", features = ["postgres"] }
-diesel_codegen = { version = "0.16.1", features = ["postgres"]}
+dotenv = "0.15.0"
