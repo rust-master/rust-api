@@ -3,7 +3,6 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
 
-
 #[derive(Queryable)]
 pub struct Book {
     pub id: i32,
