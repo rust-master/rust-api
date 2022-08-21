@@ -1,39 +1,67 @@
+#![feature(plugin, decl_macro, proc_macro_hygiene)]
+#![allow(proc_macro_derive_resolution_fallback, unused_attributes)]
+
 #[macro_use]
 extern crate diesel;
 
 extern crate dotenv;
+extern crate r2d2;
+extern crate r2d2_diesel;
+#[macro_use]
+extern crate rocket;
+extern crate rocket_contrib;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate serde_json;
 
 use dotenv::dotenv;
 use std::env;
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
+use routes::*;
 
-use crate::models::Book;
-
-mod schema;
+mod db;
 mod models;
+mod routes;
+mod schema;
+mod static_files;
 
-fn main() {
+fn rocket() -> rocket::Rocket {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("set DATABASE_URL");
-    let conn = PgConnection::establish(&database_url).unwrap();
 
-    let book = models::NewBook {
-        title: String::from("Shades of flowers"),
-        author: String::from("Zaryab"),
-        published: true,
-    };
-
-    if models::Book::insert(book, &conn) {
-        println!("success");
-        
-    } else {
-        println!("failed");
-    }
-
-    let booki = models::Book::all(&conn);
-    for i in booki.iter() {
-        println!("ID: {} , Title: {}, Author: {}", i.id, i.title, i.author);
-    }
+    let pool = db::init_pool(database_url);
+    rocket::ignite()
+        .manage(pool)
+        .mount("/", routes![static_files::all, static_files::index])
 }
+
+fn main() {
+    rocket().launch();
+}
+
+
+// fn main() {
+//     dotenv().ok();
+
+//     let database_url = env::var("DATABASE_URL").expect("set DATABASE_URL");
+//     let conn = PgConnection::establish(&database_url).unwrap();
+
+//     let book = models::NewBook {
+//         title: String::from("Shades of flowers"),
+//         author: String::from("Zaryab"),
+//         published: true,
+//     };
+
+//     if models::Book::insert(book, &conn) {
+//         println!("success");
+        
+//     } else {
+//         println!("failed");
+//     }
+
+//     let booki = models::Book::all(&conn);
+//     for i in booki.iter() {
+//         println!("ID: {} , Title: {}, Author: {}", i.id, i.title, i.author);
+//     }
+// }
