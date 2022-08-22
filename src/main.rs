@@ -33,6 +33,7 @@ fn rocket() -> rocket::Rocket {
     let pool = db::init_pool(database_url);
     rocket::ignite()
         .manage(pool)
+        .mount("/api/v1/", routes![index, new, show, delete, author, update],)
         .mount("/", routes![static_files::all, static_files::index])
 }
 
